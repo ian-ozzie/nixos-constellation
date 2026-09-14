@@ -44,3 +44,14 @@ Check flake inputs
 ```bash
 nix flake metadata
 ```
+
+### test
+
+Evaluate all supported systems and run checks for the current system, and build example containers.
+Used by CI
+
+```bash
+nix flake check --all-systems
+cd example
+nix flake check
+```
