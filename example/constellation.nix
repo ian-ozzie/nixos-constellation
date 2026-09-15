@@ -23,34 +23,8 @@ in
   ];
 
   members = {
-    foo = {
-      manifest = {
-        identity.hostName = "foo";
-        kind = "container";
-        network.addresses.lan = "10.233.123.2";
-        stateVersion = "26.05";
-        system = "x86_64-linux";
-      };
-    };
-
-    bar = {
-      manifest = {
-        identity.hostName = "bar";
-        kind = "container";
-        network.addresses.lan = "10.233.123.3";
-        stateVersion = "26.05";
-        system = "x86_64-linux";
-      };
-    };
-
-    baz = {
-      manifest = {
-        identity.hostName = "baz";
-        kind = "container";
-        network.addresses.lan = "10.233.123.4";
-        stateVersion = "26.05";
-        system = "x86_64-linux";
-      };
-    };
+    foo = import ./hosts/foo inputs;
+    bar = import ./hosts/bar inputs;
+    baz = import ./hosts/baz inputs;
   };
 }

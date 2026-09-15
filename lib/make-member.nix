@@ -39,7 +39,8 @@ nixpkgs.lib.nixosSystem {
     }
   ]
   ++ kindModules
-  ++ core;
+  ++ core
+  ++ (member.modules or [ ]);
 
   specialArgs = {
     inherit
