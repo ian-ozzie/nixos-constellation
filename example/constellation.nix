@@ -1,6 +1,6 @@
 inputs:
 let
-  private = import ./private.nix inputs;
+  private = import ./private inputs;
 in
 {
   inherit private;
