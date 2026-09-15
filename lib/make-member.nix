@@ -14,6 +14,7 @@ memberName: member:
 let
   inherit (nixpkgs) lib;
 
+  kind = member.kind or "container";
   manifest = manifests.${memberName};
 
   mkContainer = _: [
@@ -21,10 +22,7 @@ let
   ];
 
   kindModules =
-    if manifest.kind == "container" then
-      mkContainer member
-    else
-      throw "Unsupported host kind: ${manifest.kind}";
+    if kind == "container" then mkContainer member else throw "Unsupported host kind: ${kind}";
 in
 nixpkgs.lib.nixosSystem {
   inherit (manifest) system;

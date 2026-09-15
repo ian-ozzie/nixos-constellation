@@ -44,7 +44,6 @@ in
         lib.recursiveUpdate {
           allowUnfree = false;
           identity.hostName = memberName;
-          kind = "container";
           system = "x86_64-linux";
         } (member.manifest or { });
 
