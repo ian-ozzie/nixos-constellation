@@ -4,5 +4,6 @@
 
   members = {
     foo = import ./hosts/foo inputs;
+    laptop = import ./hosts/laptop inputs;
   };
 }

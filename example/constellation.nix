@@ -26,5 +26,6 @@ in
     foo = import ./hosts/foo inputs;
     bar = import ./hosts/bar inputs;
     baz = import ./hosts/baz inputs;
+    laptop = import ./hosts/laptop inputs;
   };
 }

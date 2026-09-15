@@ -4,6 +4,14 @@
 
 Constellation builder, hosts with shared configuration
 
+## Facter
+
+This has been built around nixos-facter, gather facts from metal hosts:
+
+```bash
+sudo nix run nixpkgs#nixos-facter -- -o facter.json
+```
+
 ## Tasks
 
 ### lock

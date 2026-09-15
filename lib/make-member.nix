@@ -18,11 +18,24 @@ let
   manifest = manifests.${memberName};
 
   mkContainer = _: [
-    { boot.isContainer = true; }
+    {
+      boot.isContainer = true;
+    }
+  ];
+
+  mkMetal = member: [
+    {
+      hardware.facter.reportPath = member.facterReport;
+    }
   ];
 
   kindModules =
-    if kind == "container" then mkContainer member else throw "Unsupported host kind: ${kind}";
+    if kind == "container" then
+      mkContainer member
+    else if kind == "metal" then
+      mkMetal member
+    else
+      throw "Unsupported host kind: ${kind}";
 in
 nixpkgs.lib.nixosSystem {
   inherit (manifest) system;

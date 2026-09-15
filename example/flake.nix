@@ -6,6 +6,11 @@
     dev-tools.follows = "constellation/dev-tools";
     nixpkgs.follows = "constellation/nixpkgs";
 
+    nixos-hardware = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:nixos/nixos-hardware";
+    };
+
     sops-nix = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:Mic92/sops-nix";
