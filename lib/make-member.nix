@@ -25,7 +25,8 @@ let
 
   mkMetal = member: [
     {
-      hardware.facter.reportPath = member.facterReport;
+      hardware.facter.reportPath =
+        member.facterReport or (throw "Member '${memberName}': facterReport is required");
     }
   ];
 
