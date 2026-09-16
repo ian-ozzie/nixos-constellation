@@ -22,10 +22,21 @@ in
       private = lib.recursiveUpdate privateDefaults (constellation.private or { });
       members = lib.genAttrs hostNames mergeMember;
       manifests = lib.mapAttrs memberManifest members;
+      publicMembers = if constellation ? hostsDir then discoverMembers constellation.hostsDir else { };
+      privateMembers = if private ? hostsDir then discoverMembers private.hostsDir else { };
 
-      hostNames = lib.unique (
-        lib.attrNames (constellation.members or { }) ++ lib.attrNames private.members
-      );
+      discoverMembers =
+        dir:
+        let
+          entries = builtins.readDir dir;
+
+          hosts = lib.filterAttrs (
+            name: type: type == "directory" && builtins.pathExists (dir + "/${name}/default.nix")
+          ) entries;
+        in
+        lib.mapAttrs (name: _: import (dir + "/${name}") inputs) hosts;
+
+      hostNames = lib.unique (lib.attrNames publicMembers ++ lib.attrNames privateMembers);
 
       makeMember = makeMemberWith {
         inherit
@@ -48,12 +59,14 @@ in
         } (member.manifest or { });
 
       mergeMember = mergeMemberFor {
-        inherit constellation private;
+        inherit
+          privateMembers
+          publicMembers
+          ;
       };
 
       privateDefaults = {
         core = [ ];
-        members = { };
       };
     in
     {

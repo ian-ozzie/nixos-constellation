@@ -1,10 +1,13 @@
 { lib }:
-{ constellation, private }:
+{
+  privateMembers,
+  publicMembers,
+}:
 memberName:
 let
   fields = lib.unique (lib.attrNames fromPublic ++ lib.attrNames fromPrivate);
-  fromPrivate = private.members.${memberName} or { };
-  fromPublic = constellation.members.${memberName} or { };
+  fromPrivate = privateMembers.${memberName} or { };
+  fromPublic = publicMembers.${memberName} or { };
 
   mergeField =
     field:

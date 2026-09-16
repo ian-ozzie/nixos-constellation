@@ -6,6 +6,7 @@ in
   inherit private;
 
   domain = "example.test";
+  hostsDir = ./hosts;
   name = "example";
   network = { };
   services = { };
@@ -21,11 +22,4 @@ in
       };
     })
   ];
-
-  members = {
-    foo = import ./hosts/foo inputs;
-    bar = import ./hosts/bar inputs;
-    baz = import ./hosts/baz inputs;
-    laptop = import ./hosts/laptop inputs;
-  };
 }
