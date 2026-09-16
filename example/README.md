@@ -1,24 +1,28 @@
 # Example Flake
 
-This is a simple example with a constellation of containers
+This is a simple example of a constellation, nspawn containers are built, metal is evaluated only
 
 ## Tasks
 
 ### create
 
-Inputs: SUBNET
-
-Environment: SUBNET=10.233.123
-
 ```bash
-counter=1
-for host in foo bar baz; do
-    ((counter++))
+members=$(nix eval --raw .#nixosConfigurations --apply '
+    hosts:
+    builtins.concatStringsSep " " (
+        builtins.filter
+            (name: hosts.${name}.config.boot.isNspawnContainer)
+            (builtins.attrNames hosts)
+    )
+')
 
-    sudo nixos-container create $host \
-        --flake "git+file:..?dir=example#$host" \
-        --host-address $SUBNET.1 \
-        --local-address $SUBNET.$counter
+for member in $members; do
+    local=$(nix eval --raw ".#nixosConfigurations.${member}._module.specialArgs.manifest.network.addresses.lan")
+    host=$(echo $local | awk -F"." '{ print $1 "." $2 "." $3 ".1" }')
+
+    sudo nixos-container create $member \
+        --flake "git+file:..?dir=example#$member" \
+        --host-address $host --local-address $local
 done
 ```
 
@@ -41,9 +45,18 @@ sudo nixos-container root-login $MEMBER
 ### rebuild
 
 ```bash
-for host in foo bar baz; do
-    sudo nixos-container update $host \
-        --flake "git+file:..?dir=example#$host"
+members=$(nix eval --raw .#nixosConfigurations --apply '
+    hosts:
+    builtins.concatStringsSep " " (
+        builtins.filter
+            (name: hosts.${name}.config.boot.isNspawnContainer)
+            (builtins.attrNames hosts)
+    )
+')
+
+for member in $members; do
+    sudo nixos-container update $member \
+        --flake "git+file:..?dir=example#$member"
 done
 ```
 
@@ -58,7 +71,16 @@ sudo nixos-container stop $MEMBER
 ### destroy
 
 ```bash
-for host in foo bar baz; do
-    sudo nixos-container destroy $host
+members=$(nix eval --raw .#nixosConfigurations --apply '
+    hosts:
+    builtins.concatStringsSep " " (
+        builtins.filter
+            (name: hosts.${name}.config.boot.isNspawnContainer)
+            (builtins.attrNames hosts)
+    )
+')
+
+for member in $members; do
+    sudo nixos-container destroy $member
 done
 ```
