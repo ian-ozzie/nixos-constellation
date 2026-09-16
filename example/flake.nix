@@ -5,6 +5,7 @@
     constellation.url = "path:../";
     dev-tools.follows = "constellation/dev-tools";
     nixpkgs.follows = "constellation/nixpkgs";
+    secrets.url = "path:./secrets";
 
     nixos-hardware = {
       inputs.nixpkgs.follows = "nixpkgs";

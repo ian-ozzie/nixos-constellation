@@ -125,8 +125,20 @@
           "constellation",
           "nixpkgs"
         ],
+        "secrets": "secrets",
         "sops-nix": "sops-nix"
       }
+    },
+    "secrets": {
+      "locked": {
+        "path": "./secrets",
+        "type": "path"
+      },
+      "original": {
+        "path": "./secrets",
+        "type": "path"
+      },
+      "parent": []
     },
     "sops-nix": {
       "inputs": {

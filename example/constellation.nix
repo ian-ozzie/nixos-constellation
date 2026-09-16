@@ -1,6 +1,6 @@
 inputs:
 let
-  private = import ./private inputs;
+  private = inputs.secrets.constellation inputs;
 in
 {
   inherit private;
