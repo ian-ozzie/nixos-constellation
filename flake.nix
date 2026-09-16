@@ -32,6 +32,7 @@
     {
       formatter = forEachSystem (system: nixpkgs.legacyPackages.${system}.nixfmt);
       lib = constellationLib;
+      nixosModules = import ./modules;
 
       checks = forEachSystem (system: {
         lint = (forSystem system).gitHooks.run {

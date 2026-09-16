@@ -12,14 +12,15 @@ in
   services = { };
 
   core = [
-    ({ pkgs, ... }: {
-      nix.settings.trusted-users = [ "@wheel" ];
+    inputs.constellation.nixosModules.hosts
 
-      environment = {
-        systemPackages = with pkgs; [
-          cowsay
-        ];
+    {
+      ozzie.constellation = {
+        hosts = {
+          enable = true;
+          type = "vpn";
+        };
       };
-    })
+    }
   ];
 }
