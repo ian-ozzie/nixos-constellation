@@ -33,6 +33,8 @@ for member in $members; do
         --flake "git+file:..?dir=example#$member" \
         --host-address $host --local-address $local
 done
+
+[ ! -L .tmp ] || rm -- .tmp
 ```
 
 ### start
@@ -67,6 +69,8 @@ for member in $members; do
     sudo nixos-container update $member \
         --flake "git+file:..?dir=example#$member"
 done
+
+[ ! -L .tmp ] || rm -- .tmp
 ```
 
 ### stop
