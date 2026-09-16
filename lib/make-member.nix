@@ -29,11 +29,19 @@ let
     }
   ];
 
+  mkNspawn = _: [
+    {
+      boot.isNspawnContainer = true;
+    }
+  ];
+
   kindModules =
     if kind == "container" then
       mkContainer member
     else if kind == "metal" then
       mkMetal member
+    else if kind == "nspawn" then
+      mkNspawn member
     else
       throw "Unsupported host kind: ${kind}";
 in

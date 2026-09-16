@@ -3,7 +3,7 @@
   ...
 }:
 {
-  kind = "container";
+  kind = "nspawn";
 
   manifest = {
     identity.hostName = "private";
