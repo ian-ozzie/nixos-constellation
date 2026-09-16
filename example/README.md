@@ -1,8 +1,17 @@
 # Example Flake
 
-This is a simple example of a constellation, nspawn containers are built, metal is evaluated only
+This is a simple example of a constellation, nspawn containers are built and run, metal is built
+only
 
 ## Tasks
+
+### build
+
+Inputs: MEMBER
+
+```bash
+nixos-rebuild build --no-link --flake .#$MEMBER
+```
 
 ### create
 
