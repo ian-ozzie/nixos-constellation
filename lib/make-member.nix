@@ -23,12 +23,20 @@ let
     }
   ];
 
-  mkMetal = member: [
-    {
-      hardware.facter.reportPath =
-        member.facterReport or (throw "Member '${memberName}': facterReport is required");
-    }
-  ];
+  mkMetal =
+    member:
+    [
+      {
+        hardware.facter.reportPath =
+          member.facterReport or (throw "Member '${memberName}': facterReport is required");
+      }
+    ]
+    ++ lib.optionals (member ? disko) [
+      (inputs.disko or (throw "Member '${memberName}': the 'disko' flake input is required"))
+      .nixosModules.disko
+
+      member.disko
+    ];
 
   mkNspawn = _: [
     {

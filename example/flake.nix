@@ -7,6 +7,11 @@
     nixpkgs.follows = "constellation/nixpkgs";
     secrets.url = "path:./secrets";
 
+    disko = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:nix-community/disko";
+    };
+
     nixos-hardware = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:nixos/nixos-hardware";

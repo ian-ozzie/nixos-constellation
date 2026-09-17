@@ -4,6 +4,7 @@
 }:
 {
   kind = "metal";
+  disko = ./storage.nix;
 
   manifest = {
     identity.hostName = "laptop";
@@ -16,6 +17,5 @@
     nixos-hardware.nixosModules.framework-13-7040-amd
 
     ./configuration.nix
-    ./hardware.nix
   ];
 }
