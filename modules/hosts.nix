@@ -11,7 +11,9 @@ let
     network:
     let
       hosts = lib.filterAttrs (
-        _: manifest: (manifest.network.addresses.${network} or null) != null
+        _: manifest:
+        (manifest.network.addresses.${network} or null) != null
+        && manifest.identity.hostName != config.networking.hostName
       ) constellation.manifests;
 
       grouped = lib.groupBy (manifest: manifest.network.addresses.${network}) (lib.attrValues hosts);
