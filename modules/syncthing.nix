@@ -7,6 +7,7 @@
   ...
 }:
 let
+  allDevices = lib.recursiveUpdate memberDevices (shared.devices or { });
   cfg = config.ozzie.constellation.syncthing;
   deviceName = device: if builtins.isString device then device else device.name;
   devices = removeAttrs (lib.recursiveUpdate memberDevices (shared.devices or { })) [ memberName ];
@@ -60,6 +61,20 @@ in
   };
 
   config = lib.mkIf (cfg.enable && (manifest.syncthing.id or null) != null) {
+    assertions = lib.mapAttrsToList (
+      name: folder:
+      let
+        unknownDevices = builtins.filter (device: !(builtins.hasAttr device allDevices)) (
+          map deviceName (folder.devices or [ ])
+        );
+      in
+      {
+        assertion = unknownDevices == [ ];
+        message =
+          "Syncthing folder '${name}' refers to unknown devices: " + lib.concatStringsSep ", " unknownDevices;
+      }
+    ) (shared.folders or { });
+
     services.syncthing = {
       enable = true;
 
