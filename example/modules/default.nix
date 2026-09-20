@@ -1,6 +1,6 @@
 let
   modules = {
-    hosts = import ./hosts.nix;
+    site = import ./site.nix;
     syncthing = import ./syncthing.nix;
   };
 in

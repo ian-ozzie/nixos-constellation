@@ -9,6 +9,7 @@
   members,
   name,
   self,
+  services,
 }:
 memberName: member:
 let
@@ -83,6 +84,7 @@ nixpkgs.lib.nixosSystem {
         manifests
         members
         name
+        services
         ;
     };
   };

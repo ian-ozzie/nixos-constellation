@@ -29,6 +29,8 @@
       inherit self inputs;
     })
     // {
+      nixosModules = import ./modules;
+
       checks.x86_64-linux = builtins.mapAttrs (
         _: member: member.config.system.build.toplevel
       ) self.nixosConfigurations;

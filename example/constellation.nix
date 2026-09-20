@@ -9,13 +9,15 @@ in
   hostsDir = ./hosts;
   name = "example";
   network = { };
-  services = { };
 
   core = [
-    inputs.constellation.nixosModules.hosts
+    inputs.constellation.nixosModules.default
+    inputs.self.nixosModules.default
 
     {
       ozzie.constellation = {
+        syncthing.enable = true;
+
         hosts = {
           enable = true;
           type = "vpn";
@@ -23,4 +25,31 @@ in
       };
     }
   ];
+
+  services = {
+    syncthing = {
+      devices = {
+        "iPhone" = {
+          id = "E3W5VFW-3ABWPKI-MONGVOH-OFHA6IT-OWDY25V-UFLYC6J-P2IZU3Z-D2YPEQF";
+        };
+      };
+
+      folders = {
+        "04b95b8c-050c-4861-a22a-409b363cd8fc" = {
+          enable = true;
+          label = "Books";
+          ignorePatterns = [ "#include .ignore" ];
+          path = "/data/files/books";
+          type = "sendreceive";
+
+          devices = [
+            "bar"
+            "foo"
+            "iPhone"
+            "laptop"
+          ];
+        };
+      };
+    };
+  };
 }

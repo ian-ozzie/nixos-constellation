@@ -24,6 +24,7 @@ in
       privateMembers = if private ? hostsDir then discoverMembers private.hostsDir else { };
       public = import (root + "/constellation.nix") inputs;
       publicMembers = if public ? hostsDir then discoverMembers public.hostsDir else { };
+      services = lib.recursiveUpdate (public.services or { }) (private.services or { });
 
       discoverMembers =
         dir:
@@ -47,6 +48,7 @@ in
           members
           name
           self
+          services
           ;
       };
 
