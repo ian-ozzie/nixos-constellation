@@ -1,15 +1,11 @@
 {
-  networking.firewall.allowedTCPPorts = [ 22000 ];
+  ozzie.lab = {
+    syncthing.directOnly = true;
+  };
 
   services.syncthing = {
-    configDir = "/persist/services/syncthing";
-
     settings.options = {
       crashReportingEnabled = false;
-      globalAnnounceEnabled = false;
-      natEnabled = false;
-      relaysEnabled = false;
-      stunKeepaliveStartS = 0;
       urAccepted = -1;
     };
   };
@@ -22,10 +18,6 @@
       "f /data/files/books/.ignore 0700 syncthing syncthing"
       "d /data/files/documents 0700 syncthing syncthing"
       "f /data/files/documents/.ignore 0700 syncthing syncthing"
-
-      "d /persist 0755 root root"
-      "d /persist/services 0755 root root"
-      "d /persist/services/syncthing 0755 syncthing syncthing"
     ];
   };
 }

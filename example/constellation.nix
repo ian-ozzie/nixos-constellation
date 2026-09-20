@@ -12,6 +12,7 @@ in
 
   core = [
     inputs.constellation.nixosModules.default
+    inputs.ozzie-lab.nixosModules.default
     inputs.self.nixosModules.default
 
     {

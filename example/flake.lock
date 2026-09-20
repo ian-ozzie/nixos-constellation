@@ -133,6 +133,31 @@
         "type": "github"
       }
     },
+    "ozzie-lab": {
+      "inputs": {
+        "dev-tools": [
+          "dev-tools"
+        ],
+        "nixpkgs": [
+          "ozzie-lab",
+          "dev-tools",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789940453,
+        "narHash": "sha256-bGtYs5wa1UTJHSkSQqDpRnFHtAcD4z/QvE/rzC93j88=",
+        "owner": "ian-ozzie",
+        "repo": "nixos-lab",
+        "rev": "8e90f607c535fa0effcd278198dcda36eee7861c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ian-ozzie",
+        "repo": "nixos-lab",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "constellation": "constellation",
@@ -146,6 +171,7 @@
           "constellation",
           "nixpkgs"
         ],
+        "ozzie-lab": "ozzie-lab",
         "secrets": "secrets",
         "sops-nix": "sops-nix"
       }

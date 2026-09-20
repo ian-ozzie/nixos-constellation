@@ -17,6 +17,11 @@
       url = "github:nixos/nixos-hardware";
     };
 
+    ozzie-lab = {
+      inputs.dev-tools.follows = "dev-tools";
+      url = "github:ian-ozzie/nixos-lab";
+    };
+
     sops-nix = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:Mic92/sops-nix";
