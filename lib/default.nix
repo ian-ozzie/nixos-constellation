@@ -15,15 +15,15 @@ in
       root ? self,
     }:
     let
-      inherit (constellation) domain name;
+      inherit (public) domain name;
 
-      constellation = import (root + "/constellation.nix") inputs;
-      core = (constellation.core or [ ]) ++ (private.core or [ ]);
-      private = lib.recursiveUpdate privateDefaults (constellation.private or { });
-      members = lib.genAttrs hostNames mergeMember;
+      core = (public.core or [ ]) ++ (private.core or [ ]);
       manifests = lib.mapAttrs memberManifest members;
-      publicMembers = if constellation ? hostsDir then discoverMembers constellation.hostsDir else { };
+      members = lib.genAttrs hostNames mergeMember;
+      private = lib.recursiveUpdate privateDefaults (public.private or { });
       privateMembers = if private ? hostsDir then discoverMembers private.hostsDir else { };
+      public = import (root + "/constellation.nix") inputs;
+      publicMembers = if public ? hostsDir then discoverMembers public.hostsDir else { };
 
       discoverMembers =
         dir:
