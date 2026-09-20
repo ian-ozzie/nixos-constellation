@@ -16,11 +16,14 @@ in
 
     {
       ozzie.constellation = {
-        syncthing.enable = true;
-
         hosts = {
           enable = true;
-          type = "vpn";
+          type = "lan";
+        };
+
+        syncthing = {
+          enable = true;
+          networks = [ "lan" ];
         };
       };
     }
