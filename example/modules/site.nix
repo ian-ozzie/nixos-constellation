@@ -1,5 +1,7 @@
 { pkgs, ... }:
 {
+  networking.dhcpcd.enable = false;
+
   environment = {
     enableAllTerminfo = true;
 
