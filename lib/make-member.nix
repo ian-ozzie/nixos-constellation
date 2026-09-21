@@ -8,6 +8,7 @@
   manifests,
   members,
   name,
+  projectModules,
   self,
   services,
 }:
@@ -69,7 +70,8 @@ nixpkgs.lib.nixosSystem {
   ]
   ++ kindModules
   ++ core
-  ++ (member.modules or [ ]);
+  ++ (member.modules or [ ])
+  ++ projectModules.${memberName};
 
   specialArgs = {
     inherit
