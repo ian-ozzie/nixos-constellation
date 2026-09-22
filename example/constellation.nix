@@ -9,6 +9,7 @@ in
   hostsDir = ./hosts;
   name = "example";
   network = { };
+  projectsDir = ./projects;
 
   core = [
     inputs.constellation.nixosModules.default
@@ -29,6 +30,23 @@ in
       };
     }
   ];
+
+  projects = {
+    "baikal" = {
+      domain = "example.test"; # Default to constellation.domain when absent
+      subdomain = "baikal"; # Default to projects.<name> when absent
+
+      roles = {
+        mysql = "foo";
+        router = "baz";
+
+        php = [
+          "bar"
+          "private"
+        ];
+      };
+    };
+  };
 
   services = {
     syncthing = {
