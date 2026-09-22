@@ -1,8 +1,4 @@
-{
-  sops-nix,
-  ...
-}:
-{
+_: {
   kind = "nspawn";
 
   manifest = {
@@ -14,8 +10,6 @@
   };
 
   modules = [
-    sops-nix.nixosModules.sops
-
     ./configuration.nix
   ];
 }
