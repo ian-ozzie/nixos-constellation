@@ -11,6 +11,7 @@
   projectModules,
   self,
   services,
+  userModules,
 }:
 memberName: member:
 let
@@ -71,7 +72,8 @@ nixpkgs.lib.nixosSystem {
   ++ kindModules
   ++ core
   ++ (member.modules or [ ])
-  ++ projectModules.${memberName};
+  ++ projectModules.${memberName}
+  ++ userModules.${memberName};
 
   specialArgs = {
     inherit

@@ -2,6 +2,7 @@
 {
   core = [ sops-nix.nixosModules.sops ];
   hostsDir = ./hosts;
+  usersDir = ./users;
 
   services = {
     syncthing = {

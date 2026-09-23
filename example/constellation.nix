@@ -10,6 +10,7 @@ in
   name = "example";
   network = { };
   projectsDir = ./projects;
+  usersDir = ./users;
 
   core = [
     inputs.constellation.nixosModules.default
@@ -74,4 +75,8 @@ in
       };
     };
   };
+
+  users = [
+    "deploy"
+  ];
 }

@@ -25,12 +25,25 @@ in
       private = lib.recursiveUpdate privateDefaults (public.private or { });
       privateMembers = if private ? hostsDir then discoverMembers private.hostsDir else { };
       privateProjects = if private ? projectsDir then discoverDirs private.projectsDir else { };
+      privateUsers = if private ? usersDir then discoverDirs private.usersDir else { };
       projectPaths = publicProjects // privateProjects;
       public = import (root + "/constellation.nix") inputs;
       publicMembers = if public ? hostsDir then discoverMembers public.hostsDir else { };
       publicProjects = if public ? projectsDir then discoverDirs public.projectsDir else { };
+      publicUsers = if public ? usersDir then discoverDirs public.usersDir else { };
       roleMembers = role: lib.toList role;
       services = lib.recursiveUpdate (public.services or { }) (private.services or { });
+      userNames = lib.unique (lib.attrNames publicUsers ++ lib.attrNames privateUsers);
+
+      constellationUsers =
+        let
+          users = lib.unique ((public.users or [ ]) ++ (private.users or [ ]));
+          unknown = lib.filter (userName: !(userPaths ? ${userName})) users;
+        in
+        if unknown == [ ] then
+          users
+        else
+          throw "Constellation '${name}': unknown users: ${lib.concatStringsSep ", " unknown}";
 
       discoverDirs =
         dir:
@@ -54,6 +67,7 @@ in
           projectModules
           self
           services
+          userModules
           ;
       };
 
@@ -135,6 +149,24 @@ in
         else
           throw "Project '${projectName}': unknown member assignments: ${lib.concatStringsSep ", " errors}"
       ) (lib.recursiveUpdate (public.projects or { }) (private.projects or { }));
+
+      userModules = lib.genAttrs hostNames (
+        memberName:
+        let
+          users = lib.unique (constellationUsers ++ (members.${memberName}.users or [ ]));
+          unknown = lib.filter (userName: !(userPaths ? ${userName})) users;
+        in
+        if unknown == [ ] then
+          lib.concatMap (userName: userPaths.${userName}) users
+        else
+          throw "Member '${memberName}': unknown users: ${lib.concatStringsSep ", " unknown}"
+      );
+
+      userPaths = lib.genAttrs userNames (
+        userName:
+        lib.optional (publicUsers ? ${userName}) publicUsers.${userName}
+        ++ lib.optional (privateUsers ? ${userName}) privateUsers.${userName}
+      );
     in
     {
       nixosConfigurations = lib.mapAttrs makeMember members;

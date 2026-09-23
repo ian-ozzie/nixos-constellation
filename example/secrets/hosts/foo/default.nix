@@ -7,4 +7,8 @@ _: {
   modules = [
     ./configuration.nix
   ];
+
+  users = [
+    "example"
+  ];
 }
