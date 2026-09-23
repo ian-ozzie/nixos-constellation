@@ -6,7 +6,7 @@
   ...
 }:
 let
-  address = member: constellation.manifests.${member}.network.addresses.lan;
+  address = memberName: constellation.manifests.${memberName}.network.addresses.lan;
   clients = map address (lib.toList project.roles.php);
 
   grants = pkgs.writeText "baikal-users.sql" (

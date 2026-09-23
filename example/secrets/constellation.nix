@@ -1,7 +1,7 @@
 { sops-nix, ... }:
 {
   core = [ sops-nix.nixosModules.sops ];
-  hostsDir = ./hosts;
+  membersDir = ./members;
   usersDir = ./users;
 
   services = {

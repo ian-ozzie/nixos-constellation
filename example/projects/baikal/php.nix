@@ -1,4 +1,4 @@
-{ project, ... }:
+{ projectName, project, ... }:
 {
   constellation,
   lib,
@@ -6,9 +6,9 @@
   ...
 }:
 let
+  databaseHost = constellation.manifests.${project.roles.mysql}.network.addresses.lan;
   hostName = "${project.subdomain}.${project.domain}";
   routerAddress = constellation.manifests.${project.roles.router}.network.addresses.lan;
-  databaseHost = constellation.manifests.${project.roles.mysql}.network.addresses.lan;
 
   baikalConfig = pkgs.writeText "baikal.yaml" ''
     system:
@@ -25,7 +25,7 @@ let
     database:
       backend: mysql
       mysql_host: "${databaseHost}"
-      mysql_dbname: baikal
+      mysql_dbname: ${projectName}
       mysql_username: baikal
       mysql_password: baikal-example-only
       encryption_key: ce2257b94022683da6a770e28d2531cf

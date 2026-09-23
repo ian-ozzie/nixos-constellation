@@ -2,11 +2,11 @@
 
 [![xc compatible](https://xcfile.dev/badge.svg)](https://xcfile.dev)
 
-Constellation builder, hosts with shared configuration
+Constellation builder, members with shared configuration
 
 ## Facter
 
-This has been built around nixos-facter, gather facts from metal hosts:
+This has been built around nixos-facter, gather facts from metal members:
 
 ```bash
 sudo nix run nixpkgs#nixos-facter -- -o facter.json

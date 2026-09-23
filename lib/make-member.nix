@@ -1,5 +1,5 @@
 {
-  nixpkgs,
+  lib,
 }:
 {
   core,
@@ -15,49 +15,39 @@
 }:
 memberName: member:
 let
-  inherit (nixpkgs) lib;
-
   kind = member.kind or "container";
   manifest = manifests.${memberName};
 
-  mkContainer = _: [
-    {
-      boot.isContainer = true;
-    }
-  ];
-
-  mkMetal =
-    member:
-    [
-      {
-        hardware.facter.reportPath =
-          member.facterReport or (throw "Member '${memberName}': facterReport is required");
-      }
-    ]
-    ++ lib.optionals (member ? disko) [
-      (inputs.disko or (throw "Member '${memberName}': the 'disko' flake input is required"))
-      .nixosModules.disko
-
-      member.disko
-    ];
-
-  mkNspawn = _: [
-    {
-      boot.isNspawnContainer = true;
-    }
-  ];
-
   kindModules =
     if kind == "container" then
-      mkContainer member
+      [
+        {
+          boot.isContainer = true;
+        }
+      ]
     else if kind == "metal" then
-      mkMetal member
+      [
+        {
+          hardware.facter.reportPath =
+            member.facterReport or (throw "Member '${memberName}': 'facterReport' is required");
+        }
+      ]
+      ++ lib.optionals (member ? disko) [
+        (inputs.disko or (throw "Member '${memberName}': the 'disko' flake input is required"))
+        .nixosModules.disko
+
+        member.disko
+      ]
     else if kind == "nspawn" then
-      mkNspawn member
+      [
+        {
+          boot.isNspawnContainer = true;
+        }
+      ]
     else
-      throw "Unsupported host kind: ${kind}";
+      throw "Member '${memberName}': unsupported 'kind': ${kind}";
 in
-nixpkgs.lib.nixosSystem {
+lib.nixosSystem {
   inherit (manifest) system;
 
   modules = [
@@ -66,7 +56,7 @@ nixpkgs.lib.nixosSystem {
       nixpkgs.config.allowUnfree = manifest.allowUnfree;
       system.configurationRevision = self.rev or self.dirtyRev or null;
       system.stateVersion =
-        manifest.stateVersion or (throw "Member '${memberName}': manifest.stateVersion is required");
+        manifest.stateVersion or (throw "Member '${memberName}': 'manifest.stateVersion' is required");
     }
   ]
   ++ kindModules

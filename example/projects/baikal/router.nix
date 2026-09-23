@@ -5,6 +5,8 @@
   ...
 }:
 let
+  hostName = "${project.subdomain}.${project.domain}";
+
   backends = map (memberName: "${constellation.manifests.${memberName}.network.addresses.lan}:80") (
     lib.toList project.roles.php
   );
@@ -16,7 +18,7 @@ in
     enable = true;
     openFirewall = true;
 
-    virtualHosts."${project.subdomain}.${project.domain}".extraConfig = ''
+    virtualHosts.${hostName}.extraConfig = ''
       tls internal
 
       handle {

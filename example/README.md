@@ -17,11 +17,11 @@ nixos-rebuild build --no-link --flake .#$MEMBER
 
 ```bash
 members=$(nix eval --raw .#nixosConfigurations --apply '
-    hosts:
+    members:
     builtins.concatStringsSep " " (
         builtins.filter
-            (name: hosts.${name}.config.boot.isNspawnContainer)
-            (builtins.attrNames hosts)
+            (name: members.${name}.config.boot.isNspawnContainer)
+            (builtins.attrNames members)
     )
 ')
 
@@ -57,11 +57,11 @@ sudo nixos-container root-login $MEMBER
 
 ```bash
 members=$(nix eval --raw .#nixosConfigurations --apply '
-    hosts:
+    members:
     builtins.concatStringsSep " " (
         builtins.filter
-            (name: hosts.${name}.config.boot.isNspawnContainer)
-            (builtins.attrNames hosts)
+            (name: members.${name}.config.boot.isNspawnContainer)
+            (builtins.attrNames members)
     )
 ')
 
@@ -85,11 +85,11 @@ sudo nixos-container stop $MEMBER
 
 ```bash
 members=$(nix eval --raw .#nixosConfigurations --apply '
-    hosts:
+    members:
     builtins.concatStringsSep " " (
         builtins.filter
-            (name: hosts.${name}.config.boot.isNspawnContainer)
-            (builtins.attrNames hosts)
+            (name: members.${name}.config.boot.isNspawnContainer)
+            (builtins.attrNames members)
     )
 ')
 

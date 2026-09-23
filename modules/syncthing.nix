@@ -10,15 +10,16 @@
 let
   allDevices = lib.recursiveUpdate memberDevices (shared.devices or { });
   cfg = config.ozzie.constellation.syncthing;
-  deviceName = device: if builtins.isString device then device else device.name;
-  devices = removeAttrs (lib.recursiveUpdate memberDevices (shared.devices or { })) [ memberName ];
+  deviceName = device: if lib.isString device then device else device.name;
+  devices = removeAttrs allDevices [ memberName ];
+  enabled = cfg.enable && (manifest.syncthing.id or null) != null;
   shared = constellation.services.syncthing or { };
 
   folders = lib.mapAttrs (
     _: folder:
     folder
     // {
-      devices = builtins.filter (device: deviceName device != memberName) folder.devices;
+      devices = lib.filter (device: deviceName device != memberName) folder.devices;
     }
   ) memberFolders;
 
@@ -42,11 +43,11 @@ let
   ) syncthingMembers;
 
   memberFolders = lib.filterAttrs (
-    _: folder: builtins.any (device: deviceName device == memberName) (folder.devices or [ ])
+    _: folder: lib.any (device: deviceName device == memberName) (folder.devices or [ ])
   ) (shared.folders or { });
 
   syncthingMembers = lib.filterAttrs (
-    _: manifest: (manifest.syncthing.id or null) != null
+    _: peer: (peer.syncthing.id or null) != null
   ) constellation.manifests;
 in
 {
@@ -62,18 +63,15 @@ in
   };
 
   config = lib.mkMerge [
-    (lib.mkIf (cfg.enable && (manifest.syncthing.id or null) != null) {
+    (lib.mkIf enabled {
       assertions = lib.mapAttrsToList (
         name: folder:
         let
-          unknownDevices = builtins.filter (device: !(builtins.hasAttr device allDevices)) (
-            map deviceName (folder.devices or [ ])
-          );
+          unknown = lib.filter (device: !(allDevices ? ${device})) (map deviceName (folder.devices or [ ]));
         in
         {
-          assertion = unknownDevices == [ ];
-          message =
-            "Syncthing folder '${name}' refers to unknown devices: " + lib.concatStringsSep ", " unknownDevices;
+          assertion = unknown == [ ];
+          message = "Syncthing folder '${name}': unknown devices: ${lib.concatStringsSep ", " unknown}";
         }
       ) (shared.folders or { });
 
@@ -87,7 +85,7 @@ in
     })
 
     (lib.optionalAttrs (inputs ? ozzie-lab) {
-      ozzie.lab.syncthing.enable = lib.mkIf (cfg.enable && (manifest.syncthing.id or null) != null) true;
+      ozzie.lab.syncthing.enable = lib.mkIf enabled true;
     })
   ];
 }

@@ -4,8 +4,8 @@
 let
   inherit (nixpkgs) lib;
 
-  makeMemberWith = import ./make-member.nix { inherit nixpkgs; };
-  mergeMemberFor = import ./merge-member.nix { inherit lib; };
+  makeMemberWith = import ./make-member.nix { inherit lib; };
+  mergeMemberWith = import ./merge-member.nix { inherit lib; };
 in
 {
   mkConstellation =
@@ -19,19 +19,18 @@ in
 
       core = (public.core or [ ]) ++ (private.core or [ ]);
       discoverMembers = dir: lib.mapAttrs (_: path: import path inputs) (discoverDirs dir);
-      hostNames = lib.unique (lib.attrNames publicMembers ++ lib.attrNames privateMembers);
       manifests = lib.mapAttrs memberManifest members;
-      members = lib.genAttrs hostNames mergeMember;
-      private = lib.recursiveUpdate privateDefaults (public.private or { });
-      privateMembers = if private ? hostsDir then discoverMembers private.hostsDir else { };
-      privateProjects = if private ? projectsDir then discoverDirs private.projectsDir else { };
-      privateUsers = if private ? usersDir then discoverDirs private.usersDir else { };
+      memberNames = lib.unique (lib.attrNames publicMembers ++ lib.attrNames privateMembers);
+      members = lib.genAttrs memberNames mergeMember;
+      private = public.private or { };
+      privateMembers = discoverFrom private "membersDir" discoverMembers;
+      privateProjects = discoverFrom private "projectsDir" discoverDirs;
+      privateUsers = discoverFrom private "usersDir" discoverDirs;
       projectPaths = publicProjects // privateProjects;
       public = import (root + "/constellation.nix") inputs;
-      publicMembers = if public ? hostsDir then discoverMembers public.hostsDir else { };
-      publicProjects = if public ? projectsDir then discoverDirs public.projectsDir else { };
-      publicUsers = if public ? usersDir then discoverDirs public.usersDir else { };
-      roleMembers = role: lib.toList role;
+      publicMembers = discoverFrom public "membersDir" discoverMembers;
+      publicProjects = discoverFrom public "projectsDir" discoverDirs;
+      publicUsers = discoverFrom public "usersDir" discoverDirs;
       services = lib.recursiveUpdate (public.services or { }) (private.services or { });
       userNames = lib.unique (lib.attrNames publicUsers ++ lib.attrNames privateUsers);
 
@@ -51,10 +50,14 @@ in
           entries = builtins.readDir dir;
 
           dirs = lib.filterAttrs (
-            name: type: type == "directory" && builtins.pathExists (dir + "/${name}/default.nix")
+            dirName: type: type == "directory" && builtins.pathExists (dir + "/${dirName}/default.nix")
           ) entries;
         in
-        lib.mapAttrs (name: _: dir + "/${name}") dirs;
+        lib.mapAttrs (dirName: _: dir + "/${dirName}") dirs;
+
+      discoverFrom =
+        source: key: discover:
+        if source ? ${key} then discover source.${key} else { };
 
       makeMember = makeMemberWith {
         inherit
@@ -79,15 +82,11 @@ in
           system = "x86_64-linux";
         } (member.manifest or { });
 
-      mergeMember = mergeMemberFor {
+      mergeMember = mergeMemberWith {
         inherit
           privateMembers
           publicMembers
           ;
-      };
-
-      privateDefaults = {
-        core = [ ];
       };
 
       projectDefinitions = lib.mapAttrs (
@@ -112,13 +111,13 @@ in
         }
       ) projects;
 
-      projectModules = lib.genAttrs hostNames (
+      projectModules = lib.genAttrs memberNames (
         memberName:
         lib.concatLists (
           lib.mapAttrsToList (
             projectName: project:
             lib.mapAttrsToList (roleName: _: projectRole projectName roleName) (
-              lib.filterAttrs (_: role: lib.elem memberName (roleMembers role)) (project.roles or { })
+              lib.filterAttrs (_: role: lib.elem memberName (lib.toList role)) (project.roles or { })
             )
           ) projects
         )
@@ -134,23 +133,25 @@ in
       projects = lib.mapAttrs (
         projectName: project:
         let
-          assignments = lib.flatten (
+          assignments = lib.concatLists (
             lib.mapAttrsToList (
-              roleName: role: map (memberName: { inherit memberName roleName; }) (roleMembers role)
+              roleName: role: map (memberName: { inherit memberName roleName; }) (lib.toList role)
             ) (project.roles or { })
           );
 
-          errors = map (assignment: "${assignment.roleName} -> ${assignment.memberName}") (
-            lib.filter (assignment: !(builtins.hasAttr assignment.memberName members)) assignments
-          );
+          unknown = lib.filter (assignment: !(members ? ${assignment.memberName})) assignments;
         in
-        if errors == [ ] then
+        if unknown == [ ] then
           project
         else
-          throw "Project '${projectName}': unknown member assignments: ${lib.concatStringsSep ", " errors}"
+          throw "Project '${projectName}': unknown member assignments: ${
+            lib.concatMapStringsSep ", " (
+              assignment: "${assignment.roleName} -> ${assignment.memberName}"
+            ) unknown
+          }"
       ) (lib.recursiveUpdate (public.projects or { }) (private.projects or { }));
 
-      userModules = lib.genAttrs hostNames (
+      userModules = lib.genAttrs memberNames (
         memberName:
         let
           users = lib.unique (constellationUsers ++ (members.${memberName}.users or [ ]));

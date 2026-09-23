@@ -6,9 +6,8 @@ in
   inherit private;
 
   domain = "example.test";
-  hostsDir = ./hosts;
+  membersDir = ./members;
   name = "example";
-  network = { };
   projectsDir = ./projects;
   usersDir = ./users;
 
@@ -21,7 +20,7 @@ in
       ozzie.constellation = {
         hosts = {
           enable = true;
-          type = "lan";
+          network = "lan";
         };
 
         syncthing = {
