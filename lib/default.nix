@@ -31,7 +31,7 @@ in
       publicMembers = discoverFrom public "membersDir" discoverMembers;
       publicProjects = discoverFrom public "projectsDir" discoverDirs;
       publicUsers = discoverFrom public "usersDir" discoverDirs;
-      services = lib.recursiveUpdate (public.services or { }) (private.services or { });
+      services = mergeSettings (public.services or { }) (private.services or { });
       userNames = lib.unique (lib.attrNames publicUsers ++ lib.attrNames privateUsers);
 
       constellationUsers =
