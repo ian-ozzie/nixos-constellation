@@ -34,6 +34,10 @@
       inherit self inputs;
     })
     // {
+      lib.nspawnMembers = builtins.filter (
+        name: self.nixosConfigurations.${name}.config.boot.isNspawnContainer
+      ) (builtins.attrNames self.nixosConfigurations);
+
       nixosModules = import ./modules;
 
       checks.x86_64-linux = builtins.mapAttrs (

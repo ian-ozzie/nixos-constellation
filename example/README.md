@@ -15,17 +15,16 @@ nixos-rebuild build --no-link --flake .#$MEMBER
 
 ### create
 
-```bash
-members=$(nix eval --raw .#nixosConfigurations --apply '
-    members:
-    builtins.concatStringsSep " " (
-        builtins.filter
-            (name: members.${name}.config.boot.isNspawnContainer)
-            (builtins.attrNames members)
-    )
-')
+Inputs: MEMBERS
 
-for member in $members; do
+Environment: MEMBERS=
+
+```bash
+if [ -z "$MEMBERS" ]; then
+    MEMBERS=$(nix eval --raw .#lib.nspawnMembers --apply 'builtins.concatStringsSep " "')
+fi
+
+for member in $MEMBERS; do
     local=$(nix eval --raw ".#nixosConfigurations.${member}._module.specialArgs.manifest.network.addresses.lan")
     host=$(echo $local | awk -F"." '{ print $1 "." $2 "." $3 ".1" }')
 
@@ -39,10 +38,18 @@ done
 
 ### start
 
-Inputs: MEMBER
+Inputs: MEMBERS
+
+Environment: MEMBERS=
 
 ```bash
-sudo nixos-container start $MEMBER
+if [ -z "$MEMBERS" ]; then
+    MEMBERS=$(nix eval --raw .#lib.nspawnMembers --apply 'builtins.concatStringsSep " "')
+fi
+
+for member in $MEMBERS; do
+    sudo nixos-container start $member
+done
 ```
 
 ### shell
@@ -55,19 +62,17 @@ sudo nixos-container root-login $MEMBER
 
 ### rebuild
 
-```bash
-members=$(nix eval --raw .#nixosConfigurations --apply '
-    members:
-    builtins.concatStringsSep " " (
-        builtins.filter
-            (name: members.${name}.config.boot.isNspawnContainer)
-            (builtins.attrNames members)
-    )
-')
+Inputs: MEMBERS
 
-for member in $members; do
-    sudo nixos-container update $member \
-        --flake "git+file:..?dir=example#$member"
+Environment: MEMBERS=
+
+```bash
+if [ -z "$MEMBERS" ]; then
+    MEMBERS=$(nix eval --raw .#lib.nspawnMembers --apply 'builtins.concatStringsSep " "')
+fi
+
+for member in $MEMBERS; do
+    sudo nixos-container update $member --flake "git+file:..?dir=example#$member"
 done
 
 [ ! -L .tmp ] || rm -- .tmp
@@ -75,25 +80,48 @@ done
 
 ### stop
 
-Inputs: MEMBER
+Inputs: MEMBERS
+
+Environment: MEMBERS=
 
 ```bash
-sudo nixos-container stop $MEMBER
+if [ -z "$MEMBERS" ]; then
+    MEMBERS=$(nix eval --raw .#lib.nspawnMembers --apply 'builtins.concatStringsSep " "')
+fi
+
+for member in $MEMBERS; do
+    sudo nixos-container stop $member
+done
+```
+
+### terminate
+
+Inputs: MEMBERS
+
+Environment: MEMBERS=
+
+```bash
+if [ -z "$MEMBERS" ]; then
+    MEMBERS=$(nix eval --raw .#lib.nspawnMembers --apply 'builtins.concatStringsSep " "')
+fi
+
+for member in $MEMBERS; do
+    sudo nixos-container terminate $member
+done
 ```
 
 ### destroy
 
-```bash
-members=$(nix eval --raw .#nixosConfigurations --apply '
-    members:
-    builtins.concatStringsSep " " (
-        builtins.filter
-            (name: members.${name}.config.boot.isNspawnContainer)
-            (builtins.attrNames members)
-    )
-')
+Inputs: MEMBERS
 
-for member in $members; do
+Environment: MEMBERS=
+
+```bash
+if [ -z "$MEMBERS" ]; then
+    MEMBERS=$(nix eval --raw .#lib.nspawnMembers --apply 'builtins.concatStringsSep " "')
+fi
+
+for member in $MEMBERS; do
     sudo nixos-container destroy $member
 done
 ```
