@@ -54,10 +54,14 @@ done
 
 ### shell
 
+Using `sudo nixos-container root-login $MEMBER`, `xc shell` suspends when the container shutdown
+starts, and prevents it from shutting down until the shell job is resumed. When using
+`machinectl shell` directly, the shell terminates and the machine shuts down as expected.
+
 Inputs: MEMBER
 
 ```bash
-sudo nixos-container root-login $MEMBER
+sudo machinectl shell "root@$MEMBER"
 ```
 
 ### rebuild
