@@ -11,7 +11,7 @@ let
   allDevices = lib.recursiveUpdate memberDevices (shared.devices or { });
   cfg = config.ozzie.constellation.syncthing;
   deviceName = device: if lib.isString device then device else device.name;
-  devices = removeAttrs allDevices [ memberName ];
+  devices = lib.filterAttrs (name: _: lib.elem name peerNames) allDevices;
   enabled = cfg.enable && (manifest.syncthing.id or null) != null;
   shared = constellation.services.syncthing or { };
 
@@ -27,6 +27,7 @@ let
     _: peer:
     let
       addresses = peer.network.addresses or { };
+      known = lib.filter (address: address != null) selected;
 
       selected =
         if cfg.networks == null then
@@ -36,15 +37,24 @@ let
     in
     {
       id = peer.syncthing.id;
-      addresses = map (
-        address: "tcp://${if lib.hasInfix ":" address then "[${address}]" else address}:22000"
-      ) (lib.filter (address: address != null) selected);
+
+      addresses =
+        if known == [ ] then
+          [ "dynamic" ]
+        else
+          map (address: "tcp://${if lib.hasInfix ":" address then "[${address}]" else address}:22000") known;
     }
   ) syncthingMembers;
 
   memberFolders = lib.filterAttrs (
     _: folder: lib.any (device: deviceName device == memberName) (folder.devices or [ ])
   ) (shared.folders or { });
+
+  peerNames = lib.filter (name: name != memberName) (
+    lib.unique (
+      lib.concatMap (folder: map deviceName (folder.devices or [ ])) (lib.attrValues memberFolders)
+    )
+  );
 
   syncthingMembers = lib.filterAttrs (
     _: peer: (peer.syncthing.id or null) != null
