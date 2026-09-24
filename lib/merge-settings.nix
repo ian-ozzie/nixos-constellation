@@ -15,8 +15,8 @@ let
           publicSettings
           privateSettings
         ]
-    else if lib.isList publicSettings && lib.isList privateSettings then
-      publicSettings ++ privateSettings
+    else if lib.isList publicSettings || lib.isList privateSettings then
+      lib.toList publicSettings ++ lib.toList privateSettings
     else
       privateSettings;
 in
