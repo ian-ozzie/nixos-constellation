@@ -48,12 +48,11 @@ let
       throw "Member '${memberName}': unsupported 'kind': ${kind}";
 in
 lib.nixosSystem {
-  inherit (manifest) system;
-
   modules = [
     {
       networking.hostName = lib.mkDefault manifest.identity.hostName;
       nixpkgs.config.allowUnfree = manifest.allowUnfree;
+      nixpkgs.hostPlatform = manifest.system;
       system.configurationRevision = self.rev or self.dirtyRev or null;
       system.stateVersion =
         manifest.stateVersion or (throw "Member '${memberName}': 'manifest.stateVersion' is required");

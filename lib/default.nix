@@ -79,7 +79,9 @@ in
         lib.recursiveUpdate {
           allowUnfree = false;
           identity.hostName = memberName;
-          system = "x86_64-linux";
+
+          system =
+            if member ? facterReport then (lib.importJSON member.facterReport).system else "x86_64-linux";
         } (member.manifest or { });
 
       mergeMember =
