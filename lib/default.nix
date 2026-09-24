@@ -5,7 +5,7 @@ let
   inherit (nixpkgs) lib;
 
   makeMemberWith = import ./make-member.nix { inherit lib; };
-  mergeMemberWith = import ./merge-member.nix { inherit lib; };
+  mergeSettings = import ./merge-settings.nix { inherit lib; };
 in
 {
   mkConstellation =
@@ -26,7 +26,7 @@ in
       privateMembers = discoverFrom private "membersDir" discoverMembers;
       privateProjects = discoverFrom private "projectsDir" discoverDirs;
       privateUsers = discoverFrom private "usersDir" discoverDirs;
-      projectPaths = publicProjects // privateProjects;
+      projectNames = lib.unique (lib.attrNames publicProjects ++ lib.attrNames privateProjects);
       public = import (root + "/constellation.nix") inputs;
       publicMembers = discoverFrom public "membersDir" discoverMembers;
       publicProjects = discoverFrom public "projectsDir" discoverDirs;
@@ -82,12 +82,31 @@ in
           system = "x86_64-linux";
         } (member.manifest or { });
 
-      mergeMember = mergeMemberWith {
-        inherit
-          privateMembers
-          publicMembers
-          ;
-      };
+      mergeMember =
+        memberName:
+        mergeSettings (publicMembers.${memberName} or { }) (privateMembers.${memberName} or { });
+
+      projectAssignments =
+        let
+          assignments = lib.concatLists (
+            lib.mapAttrsToList (
+              projectName: project:
+              lib.concatLists (
+                lib.mapAttrsToList (
+                  roleName: role: map (memberName: { inherit memberName projectName roleName; }) (lib.toList role)
+                ) (project.roles or { })
+              )
+            ) projects
+          );
+
+          unknown = map (
+            assignment: "${assignment.projectName}.${assignment.roleName} -> ${assignment.memberName}"
+          ) (lib.filter (assignment: !(members ? ${assignment.memberName})) assignments);
+        in
+        if unknown == [ ] then
+          assignments
+        else
+          throw "Constellation '${name}': unknown member assignments: ${lib.concatStringsSep ", " unknown}";
 
       projectDefinitions = lib.mapAttrs (
         projectName: settings:
@@ -98,58 +117,44 @@ in
             subdomain = projectName;
           }
           // settings;
-
-          path =
-            projectPaths.${projectName} or (throw "Project '${projectName}': no project directory found");
         in
-        import path {
-          inherit
-            inputs
-            projectName
-            project
-            ;
-        }
+        map (path: import path { inherit project projectName; }) projectPaths.${projectName}
       ) projects;
 
       projectModules = lib.genAttrs memberNames (
         memberName:
-        lib.concatLists (
-          lib.mapAttrsToList (
-            projectName: project:
-            lib.mapAttrsToList (roleName: _: projectRole projectName roleName) (
-              lib.filterAttrs (_: role: lib.elem memberName (lib.toList role)) (project.roles or { })
-            )
-          ) projects
+        lib.concatMap (assignment: projectRole assignment.projectName assignment.roleName) (
+          lib.filter (assignment: assignment.memberName == memberName) projectAssignments
         )
+      );
+
+      projectPaths = lib.genAttrs projectNames (
+        projectName:
+        lib.optional (publicProjects ? ${projectName}) publicProjects.${projectName}
+        ++ lib.optional (privateProjects ? ${projectName}) privateProjects.${projectName}
       );
 
       projectRole =
         projectName: roleName:
-        projectDefinitions.${projectName}.${roleName}
-          or (throw "Project '${projectName}': role '${roleName}' is not defined in ${
-            toString projectPaths.${projectName}
-          }");
-
-      projects = lib.mapAttrs (
-        projectName: project:
         let
-          assignments = lib.concatLists (
-            lib.mapAttrsToList (
-              roleName: role: map (memberName: { inherit memberName roleName; }) (lib.toList role)
-            ) (project.roles or { })
-          );
+          roles = lib.catAttrs roleName projectDefinitions.${projectName};
+        in
+        if roles != [ ] then
+          roles
+        else
+          throw "Project '${projectName}': role '${roleName}' is not defined in ${
+            lib.concatMapStringsSep ", " toString projectPaths.${projectName}
+          }";
 
-          unknown = lib.filter (assignment: !(members ? ${assignment.memberName})) assignments;
+      projects =
+        let
+          declared = mergeSettings (public.projects or { }) (private.projects or { });
+          unknown = lib.filter (projectName: !(projectPaths ? ${projectName})) (lib.attrNames declared);
         in
         if unknown == [ ] then
-          project
+          declared
         else
-          throw "Project '${projectName}': unknown member assignments: ${
-            lib.concatMapStringsSep ", " (
-              assignment: "${assignment.roleName} -> ${assignment.memberName}"
-            ) unknown
-          }"
-      ) (lib.recursiveUpdate (public.projects or { }) (private.projects or { }));
+          throw "Constellation '${name}': unknown projects: ${lib.concatStringsSep ", " unknown}";
 
       userModules = lib.genAttrs memberNames (
         memberName:

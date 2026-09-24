@@ -2,6 +2,7 @@
 {
   core = [ sops-nix.nixosModules.sops ];
   membersDir = ./members;
+  projectsDir = ./projects;
   usersDir = ./users;
 
   services = {
