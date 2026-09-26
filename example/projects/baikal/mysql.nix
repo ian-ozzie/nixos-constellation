@@ -1,12 +1,15 @@
-{ projectName, project, ... }:
 {
-  constellation,
-  lib,
+  project,
+  projectName,
+  projectNetwork,
+  ...
+}:
+{
+  memberName,
   ...
 }:
 let
-  address = memberName: constellation.manifests.${memberName}.network.addresses.lan;
-  clients = map address (lib.toList project.roles.php);
+  clients = projectNetwork.addresses "backend" project.roles.php;
 in
 {
   ozzie.lab.mysql.enable = true;
@@ -25,7 +28,7 @@ in
 
     mysql = {
       ensureDatabases = [ projectName ];
-      settings.mysqld.bind-address = address project.roles.mysql;
+      settings.mysqld.bind-address = projectNetwork.address "backend" memberName;
     };
   };
 }

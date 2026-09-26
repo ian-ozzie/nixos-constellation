@@ -32,9 +32,14 @@ in
   ];
 
   projects = {
-    "baikal" = {
+    baikal = {
       domain = "example.test"; # Default to constellation.domain when absent
-      subdomain = "baikal"; # Default to projects.<name> when absent
+      subdomain = "baikal"; # Defaults to the source project name
+
+      networks = {
+        frontend = "lan";
+        backend = "lan";
+      };
 
       roles = {
         mysql = "foo";
@@ -44,6 +49,22 @@ in
           "bar"
           "private"
         ];
+      };
+    };
+
+    baikal-dev = {
+      domain = "local.test";
+      project = "baikal";
+
+      networks = {
+        frontend = "lan";
+        backend = "internal";
+      };
+
+      roles = {
+        mysql = "dev";
+        router = "dev";
+        php = "dev";
       };
     };
   };

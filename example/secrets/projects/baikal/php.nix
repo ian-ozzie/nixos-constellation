@@ -1,11 +1,16 @@
-{ projectName, project, ... }:
 {
-  constellation,
+  project,
+  projectName,
+  projectNetwork,
+  ...
+}:
+{
+  lib,
   pkgs,
   ...
 }:
 let
-  databaseHost = constellation.manifests.${project.roles.mysql}.network.addresses.lan;
+  databaseHost = projectNetwork.address "backend" project.roles.mysql;
 
   baikalConfig = pkgs.writeText "baikal.yaml" ''
     system:
@@ -29,6 +34,13 @@ let
   '';
 in
 {
+  assertions = [
+    {
+      assertion = lib.isString project.roles.mysql;
+      message = "Project '${projectName}': role 'mysql' must name one member";
+    }
+  ];
+
   systemd.tmpfiles.rules = [
     "C /var/lib/baikal/config/baikal.yaml 0600 baikal baikal - ${baikalConfig}"
   ];

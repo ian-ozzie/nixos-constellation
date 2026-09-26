@@ -27,6 +27,7 @@ in
       privateProjects = discoverFrom private "projectsDir" discoverDirs;
       privateUsers = discoverFrom private "usersDir" discoverDirs;
       projectNames = lib.unique (lib.attrNames publicProjects ++ lib.attrNames privateProjects);
+      projectSource = projectName: projects.${projectName}.project or projectName;
       public = import (root + "/constellation.nix") inputs;
       publicMembers = discoverFrom public "membersDir" discoverMembers;
       publicProjects = discoverFrom public "projectsDir" discoverDirs;
@@ -116,11 +117,22 @@ in
           project = {
             inherit domain;
 
-            subdomain = projectName;
+            subdomain = projectSource projectName;
           }
           // settings;
+
+          projectNetwork = import ./project-network.nix {
+            inherit
+              lib
+              manifests
+              project
+              projectName
+              ;
+          };
         in
-        map (path: import path { inherit project projectName; }) projectPaths.${projectName}
+        map (
+          path: import path { inherit project projectName projectNetwork; }
+        ) projectPaths.${projectSource projectName}
       ) projects;
 
       projectModules = lib.genAttrs memberNames (
@@ -145,13 +157,16 @@ in
           roles
         else
           throw "Project '${projectName}': role '${roleName}' is not defined in ${
-            lib.concatMapStringsSep ", " toString projectPaths.${projectName}
+            lib.concatMapStringsSep ", " toString projectPaths.${projectSource projectName}
           }";
 
       projects =
         let
           declared = mergeSettings (public.projects or { }) (private.projects or { });
-          unknown = lib.filter (projectName: !(projectPaths ? ${projectName})) (lib.attrNames declared);
+
+          unknown = lib.filter (
+            projectName: !(projectPaths ? ${declared.${projectName}.project or projectName})
+          ) (lib.attrNames declared);
         in
         if unknown == [ ] then
           declared

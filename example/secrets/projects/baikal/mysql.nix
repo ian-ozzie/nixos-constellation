@@ -1,13 +1,16 @@
-{ projectName, project, ... }:
 {
-  constellation,
+  project,
+  projectName,
+  projectNetwork,
+  ...
+}:
+{
   lib,
   pkgs,
   ...
 }:
 let
-  address = memberName: constellation.manifests.${memberName}.network.addresses.lan;
-  clients = map address (lib.toList project.roles.php);
+  clients = projectNetwork.addresses "backend" project.roles.php;
 
   grants = pkgs.writeText "baikal-users.sql" (
     lib.concatMapStringsSep "\n" (client: ''
