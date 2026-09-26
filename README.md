@@ -6,11 +6,13 @@ Constellation builder, members with shared configuration
 
 ## Facter
 
-This has been built around nixos-facter, gather facts from metal members:
+This has been built with nixos-facter in mind, gather facts from host members:
 
 ```bash
 sudo nix run nixpkgs#nixos-facter -- -o facter.json
 ```
+
+Facter is opt-in, nothing here requires it.
 
 ## Tasks
 

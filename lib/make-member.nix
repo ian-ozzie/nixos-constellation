@@ -25,11 +25,10 @@ let
           boot.isContainer = true;
         }
       ]
-    else if kind == "metal" then
-      [
+    else if kind == "host" then
+      lib.optionals (member ? facterReport) [
         {
-          hardware.facter.reportPath =
-            member.facterReport or (throw "Member '${memberName}': 'facterReport' is required");
+          hardware.facter.reportPath = member.facterReport;
         }
       ]
       ++ lib.optionals (member ? disko) [

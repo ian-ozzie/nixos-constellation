@@ -4,7 +4,7 @@
 }:
 {
   disko = ./storage.nix;
-  kind = "metal";
+  kind = "host";
 
   manifest = {
     identity.hostName = "laptop";

@@ -1,7 +1,6 @@
 # Example Flake
 
-This is a simple example of a constellation, nspawn containers are built and run, metal is built
-only
+This is a simple example of a constellation, nspawn containers are built and run, host is built only
 
 ## Tasks
 
