@@ -9,7 +9,9 @@
   ...
 }:
 let
-  clients = projectNetwork.addresses "backend" project.roles.php;
+  clients =
+    projectNetwork.addresses "backend" project.roles.php
+    ++ projectNetwork.addresses "backend" (project.roles.monitor or [ ]);
 in
 {
   ozzie.lab.mysql.enable = true;

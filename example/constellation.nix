@@ -42,6 +42,7 @@ in
       };
 
       roles = {
+        monitor = "monitor";
         mysql = "foo";
         router = "baz";
 

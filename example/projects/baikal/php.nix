@@ -10,7 +10,9 @@
 }:
 let
   hostName = "${project.subdomain}.${project.domain}";
-  routers = projectNetwork.addresses "backend" project.roles.router;
+  clients =
+    projectNetwork.addresses "backend" project.roles.router
+    ++ projectNetwork.addresses "backend" (project.roles.monitor or [ ]);
 in
 {
   services = {
@@ -19,16 +21,16 @@ in
       virtualHost = hostName;
     };
 
-    firewalld.zones.nixos-fw-default.rules = map (router: {
+    firewalld.zones.nixos-fw-default.rules = map (client: {
       "@family" = "ipv4";
       accept = "";
-      source."@address" = router;
+      source."@address" = client;
 
       port = {
         "@port" = "80";
         "@protocol" = "tcp";
       };
-    }) routers;
+    }) clients;
 
     nginx.virtualHosts.${hostName} = {
       listen = [
