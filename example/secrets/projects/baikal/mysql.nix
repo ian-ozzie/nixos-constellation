@@ -20,14 +20,22 @@ let
   );
 in
 {
-  services.mysql.initialDatabases = [
-    {
-      name = projectName;
-      schema = ./baikal.sql;
-    }
-  ];
+  systemd.services."project-${projectName}-mysql-seed" = {
+    after = [ "mysql.service" ];
+    requires = [ "mysql.service" ];
+    wantedBy = [ "multi-user.target" ];
 
-  systemd.services.mysql.postStart = lib.mkAfter ''
-    ${pkgs.mariadb}/bin/mariadb < ${grants}
-  '';
+    script = ''
+      if [ -z "$(${pkgs.mariadb}/bin/mariadb -N -e 'SHOW TABLES' '${projectName}')" ]; then
+        ${pkgs.mariadb}/bin/mariadb '${projectName}' < ${./baikal.sql}
+      fi
+
+      ${pkgs.mariadb}/bin/mariadb < ${grants}
+    '';
+
+    serviceConfig = {
+      RemainAfterExit = true;
+      Type = "oneshot";
+    };
+  };
 }
