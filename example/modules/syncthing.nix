@@ -1,3 +1,4 @@
+{ config, lib, ... }:
 {
   ozzie.lab = {
     syncthing.directOnly = true;
@@ -11,7 +12,7 @@
   };
 
   systemd = {
-    tmpfiles.rules = [
+    tmpfiles.rules = lib.mkIf config.services.syncthing.enable [
       "d /data 0755 root root"
       "d /data/files 0700 syncthing syncthing"
       "d /data/files/books 0700 syncthing syncthing"

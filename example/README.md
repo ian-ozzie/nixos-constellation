@@ -2,6 +2,11 @@
 
 This is a simple example of a constellation, nspawn containers are built and run, host is built only
 
+## Syncthing
+
+The Syncthing ID's provided here are generated on my test containers, and would need to be updated
+to match on other systems.
+
 ## Tasks
 
 ### build
