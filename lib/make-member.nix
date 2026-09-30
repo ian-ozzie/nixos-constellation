@@ -15,7 +15,8 @@
 }:
 memberName: member:
 let
-  kind = member.manifest.kind or "container";
+  inherit (manifest) kind;
+
   manifest = manifests.${memberName};
 
   kindModules =
