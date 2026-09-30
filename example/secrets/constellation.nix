@@ -1,9 +1,12 @@
 { sops-nix, ... }:
 {
-  core = [ sops-nix.nixosModules.sops ];
   membersDir = ./members;
   projectsDir = ./projects;
   usersDir = ./users;
+
+  modules = [
+    sops-nix.nixosModules.sops
+  ];
 
   services = {
     syncthing = {

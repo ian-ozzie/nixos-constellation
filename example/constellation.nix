@@ -6,12 +6,13 @@ in
   inherit private;
 
   domain = "example.test";
-  membersDir = ./members;
   name = "example";
+
+  membersDir = ./members;
   projectsDir = ./projects;
   usersDir = ./users;
 
-  core = [
+  modules = [
     inputs.constellation.nixosModules.default
     inputs.ozzie-lab.nixosModules.default
     inputs.self.nixosModules.default

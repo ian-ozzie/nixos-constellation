@@ -2,11 +2,11 @@
   lib,
 }:
 {
-  core,
   domain,
   inputs,
   manifests,
   members,
+  modules,
   name,
   projectModules,
   self,
@@ -58,7 +58,7 @@ lib.nixosSystem {
     }
   ]
   ++ kindModules
-  ++ core
+  ++ modules
   ++ (member.modules or [ ])
   ++ projectModules.${memberName}
   ++ userModules.${memberName};

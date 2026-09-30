@@ -17,11 +17,11 @@ in
     let
       inherit (public) domain name;
 
-      core = (public.core or [ ]) ++ (private.core or [ ]);
       discoverMembers = dir: lib.mapAttrs (_: path: import path inputs) (discoverDirs dir);
       manifests = lib.mapAttrs memberManifest members;
       memberNames = lib.unique (lib.attrNames publicMembers ++ lib.attrNames privateMembers);
       members = lib.genAttrs memberNames mergeMember;
+      modules = (public.modules or [ ]) ++ (private.modules or [ ]);
       private = public.private or { };
       privateMembers = discoverFrom private "membersDir" discoverMembers;
       privateProjects = discoverFrom private "projectsDir" discoverDirs;
@@ -62,11 +62,11 @@ in
 
       makeMember = makeMemberWith {
         inherit
-          core
           domain
           inputs
           manifests
           members
+          modules
           name
           projectModules
           self
