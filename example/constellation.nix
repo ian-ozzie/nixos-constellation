@@ -12,6 +12,11 @@ in
   projectsDir = ./projects;
   usersDir = ./users;
 
+  manifestDefaults = {
+    allowUnfree = false;
+    kind = "nspawn";
+  };
+
   modules = [
     inputs.constellation.nixosModules.default
     inputs.ozzie-lab.nixosModules.default

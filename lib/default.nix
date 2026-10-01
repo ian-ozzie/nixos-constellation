@@ -18,6 +18,7 @@ in
       inherit (public) domain name;
 
       discoverMembers = dir: lib.mapAttrs (_: path: import path inputs) (discoverDirs dir);
+      manifestDefaults = mergeSettings (public.manifestDefaults or { }) (private.manifestDefaults or { });
       manifests = lib.mapAttrs memberManifest members;
       memberNames = lib.unique (lib.attrNames publicMembers ++ lib.attrNames privateMembers);
       members = lib.genAttrs memberNames mergeMember;
@@ -77,14 +78,12 @@ in
 
       memberManifest =
         memberName: member:
-        lib.recursiveUpdate {
-          allowUnfree = false;
+        mergeSettings {
           identity.hostName = memberName;
-          kind = "container";
 
           system =
             if member ? facterReport then (lib.importJSON member.facterReport).system else "x86_64-linux";
-        } (member.manifest or { });
+        } (mergeSettings manifestDefaults (member.manifest or { }));
 
       mergeMember =
         memberName:
