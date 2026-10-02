@@ -1,6 +1,6 @@
 _: {
   manifest = {
-    identity.hostName = "dev";
+    identity.hostName = "dev-vm";
     kind = "nspawn";
     stateVersion = "26.05";
     syncthing.id = "ETQRYC7-YJYFGAL-QXQWYFO-HZODD6K-JYHLCID-UMUJVG4-O6LLW7D-JNK6FAB";

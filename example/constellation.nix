@@ -69,9 +69,9 @@ in
       };
 
       roles = {
-        mysql = "dev";
-        router = "dev";
-        php = "dev";
+        mysql = "dev-vm";
+        router = "dev-vm";
+        php = "dev-vm";
       };
     };
   };
