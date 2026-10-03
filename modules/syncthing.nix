@@ -1,7 +1,6 @@
 {
   config,
   constellation,
-  inputs,
   lib,
   manifest,
   memberName,
@@ -92,10 +91,6 @@ in
           inherit devices folders;
         };
       };
-    })
-
-    (lib.optionalAttrs (inputs ? ozzie-lab) {
-      ozzie.lab.syncthing.enable = lib.mkIf enabled true;
     })
   ];
 }

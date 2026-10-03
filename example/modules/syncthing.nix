@@ -1,7 +1,10 @@
 { config, lib, ... }:
 {
   ozzie.lab = {
-    syncthing.directOnly = true;
+    syncthing = {
+      directOnly = true;
+      enable = true;
+    };
   };
 
   services.syncthing = {
