@@ -15,14 +15,14 @@ in
       root ? self,
     }:
     let
-      inherit (public) domain name;
-
       discoverMembers = dir: lib.mapAttrs (_: path: import path inputs) (discoverDirs dir);
+      domain = private.domain or public.domain;
       manifestDefaults = mergeSettings (public.manifestDefaults or { }) (private.manifestDefaults or { });
       manifests = lib.mapAttrs memberManifest members;
       memberNames = lib.unique (lib.attrNames publicMembers ++ lib.attrNames privateMembers);
       members = lib.genAttrs memberNames mergeMember;
       modules = (public.modules or [ ]) ++ (private.modules or [ ]);
+      name = private.name or public.name;
       private = public.private or { };
       privateMembers = discoverFrom private "membersDir" discoverMembers;
       privateProjects = discoverFrom private "projectsDir" discoverDirs;
