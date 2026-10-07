@@ -187,11 +187,18 @@ in
 
       projects = lib.mapAttrs (
         projectName: settings:
-        {
-          inherit domain;
-          subdomain = projectSource projectName;
+        let
+          project = {
+            inherit domain;
+
+            subdomain = projectSource projectName;
+          }
+          // settings;
+        in
+        project
+        // {
+          hostName = "${project.subdomain}.${project.domain}";
         }
-        // settings
       ) projectSettings;
 
       userModules = lib.genAttrs memberNames (
