@@ -203,5 +203,17 @@ in
     in
     {
       nixosConfigurations = lib.mapAttrs makeMember members;
+
+      inventory = lib.mapAttrs (_: project: {
+        domain = "${project.subdomain}.${project.domain}";
+
+        roles = lib.mapAttrs (
+          _: assignedMembers:
+          map (memberName: {
+            addresses = manifests.${memberName}.network.addresses or { };
+            name = memberName;
+          }) (lib.toList assignedMembers)
+        ) (project.roles or { });
+      }) projects;
     };
 }

@@ -133,3 +133,17 @@ for member in $MEMBERS; do
     sudo nixos-container destroy $member
 done
 ```
+
+### inventory
+
+Inputs: PROJECT
+
+Environment: PROJECT=
+
+```bash
+if [ ! -z "$PROJECT" ]; then
+    PROJECT=.$PROJECT
+fi
+
+nix eval --json .#inventory${PROJECT} | jq
+```
