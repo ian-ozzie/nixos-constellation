@@ -25,13 +25,13 @@ in
       name = private.name or public.name;
       private = public.private or { };
       privateMembers = discoverFrom private "membersDir" discoverMembers;
-      privateProjects = discoverFrom private "projectsDir" discoverDirs;
+      privateProjects = discoverFrom private "projectsDir" discoverProjects;
       privateUsers = discoverFrom private "usersDir" discoverDirs;
       projectNames = lib.unique (lib.attrNames publicProjects ++ lib.attrNames privateProjects);
       projectSource = projectName: projects.${projectName}.project or projectName;
       public = import (root + "/constellation.nix") inputs;
       publicMembers = discoverFrom public "membersDir" discoverMembers;
-      publicProjects = discoverFrom public "projectsDir" discoverDirs;
+      publicProjects = discoverFrom public "projectsDir" discoverProjects;
       publicUsers = discoverFrom public "usersDir" discoverDirs;
       services = mergeSettings (public.services or { }) (private.services or { });
       userNames = lib.unique (lib.attrNames publicUsers ++ lib.attrNames privateUsers);
@@ -60,6 +60,19 @@ in
       discoverFrom =
         source: key: discover:
         if source ? ${key} then discover source.${key} else { };
+
+      discoverProjects =
+        dirs:
+        lib.foldl' (
+          projects: dir:
+          let
+            discovered = discoverDirs dir;
+          in
+          lib.foldl' (
+            result: projectName:
+            result // { ${projectName} = (result.${projectName} or [ ]) ++ [ discovered.${projectName} ]; }
+          ) projects (lib.attrNames discovered)
+        ) { } (lib.toList dirs);
 
       makeMember = makeMemberWith {
         inherit
@@ -144,9 +157,7 @@ in
       ) projects;
 
       projectPaths = lib.genAttrs projectNames (
-        projectName:
-        lib.optional (publicProjects ? ${projectName}) publicProjects.${projectName}
-        ++ lib.optional (privateProjects ? ${projectName}) privateProjects.${projectName}
+        projectName: (publicProjects.${projectName} or [ ]) ++ (privateProjects.${projectName} or [ ])
       );
 
       projectRole =
