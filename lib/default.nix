@@ -70,6 +70,8 @@ in
           modules
           name
           projectModules
+          projectNetworks
+          projects
           self
           services
           userModules
@@ -112,26 +114,13 @@ in
           throw "Constellation '${name}': unknown member assignments: ${lib.concatStringsSep ", " unknown}";
 
       projectDefinitions = lib.mapAttrs (
-        projectName: settings:
-        let
-          project = {
-            inherit domain;
-
-            subdomain = projectSource projectName;
-          }
-          // settings;
-
-          projectNetwork = import ./project-network.nix {
-            inherit
-              lib
-              manifests
-              project
-              projectName
-              ;
-          };
-        in
+        projectName: project:
         map (
-          path: import path { inherit project projectName projectNetwork; }
+          path:
+          import path {
+            inherit project projectName;
+            projectNetwork = projectNetworks.${projectName};
+          }
         ) projectPaths.${projectSource projectName}
       ) projects;
 
@@ -141,6 +130,18 @@ in
           lib.filter (assignment: assignment.memberName == memberName) projectAssignments
         )
       );
+
+      projectNetworks = lib.mapAttrs (
+        projectName: project:
+        import ./project-network.nix {
+          inherit
+            lib
+            manifests
+            project
+            projectName
+            ;
+        }
+      ) projects;
 
       projectPaths = lib.genAttrs projectNames (
         projectName:
@@ -160,7 +161,7 @@ in
             lib.concatMapStringsSep ", " toString projectPaths.${projectSource projectName}
           }";
 
-      projects =
+      projectSettings =
         let
           declared = mergeSettings (public.projects or { }) (private.projects or { });
 
@@ -172,6 +173,15 @@ in
           declared
         else
           throw "Constellation '${name}': unknown projects: ${lib.concatStringsSep ", " unknown}";
+
+      projects = lib.mapAttrs (
+        projectName: settings:
+        {
+          inherit domain;
+          subdomain = projectSource projectName;
+        }
+        // settings
+      ) projectSettings;
 
       userModules = lib.genAttrs memberNames (
         memberName:

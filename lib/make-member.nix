@@ -9,6 +9,8 @@
   modules,
   name,
   projectModules,
+  projectNetworks,
+  projects,
   self,
   services,
   userModules,
@@ -77,6 +79,8 @@ lib.nixosSystem {
         manifests
         members
         name
+        projectNetworks
+        projects
         services
         ;
     };
