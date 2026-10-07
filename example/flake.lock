@@ -145,11 +145,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789940453,
-        "narHash": "sha256-bGtYs5wa1UTJHSkSQqDpRnFHtAcD4z/QvE/rzC93j88=",
+        "lastModified": 1791075252,
+        "narHash": "sha256-0c7DRaJV12dJG9oHBG1ZI9gMxzAmGUJAPgcPro3LK40=",
         "owner": "ian-ozzie",
         "repo": "nixos-lab",
-        "rev": "8e90f607c535fa0effcd278198dcda36eee7861c",
+        "rev": "f96e7e7995b5263476217f444b7d75d8bea7a5ad",
         "type": "github"
       },
       "original": {

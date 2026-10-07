@@ -10,26 +10,20 @@
 }:
 let
   hostName = "${project.subdomain}.${project.domain}";
+  urlAddress = address: if lib.hasInfix ":" address then "[${address}]" else address;
 
-  backends = map (address: "${address}:80") (projectNetwork.addresses "backend" project.roles.php);
+  upstreams = map (address: "${urlAddress address}:8945") (
+    projectNetwork.addresses "backend" project.roles.php
+  );
 in
 {
-  ozzie.lab.caddy.enable = true;
-
-  services.caddy = {
+  ozzie.lab.caddy = {
     enable = true;
-    openFirewall = true;
 
-    virtualHosts.${hostName} = {
-      extraConfig = ''
-        tls internal
+    sites.${hostName} = {
+      inherit upstreams;
 
-        handle {
-          reverse_proxy ${lib.concatStringsSep " " backends} {
-            lb_policy cookie
-          }
-        }
-      '';
+      proxyConfig = "lb_policy cookie";
 
       listenAddresses = [
         (projectNetwork.address "frontend" memberName)
