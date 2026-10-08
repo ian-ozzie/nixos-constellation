@@ -9,7 +9,6 @@ in
   name = "example";
 
   membersDir = ./members;
-  projectsDir = ./projects;
   usersDir = ./users;
 
   manifestDefaults = {
@@ -74,7 +73,28 @@ in
         php = "dev-vm";
       };
     };
+
+    git = {
+      domain = "local.test";
+      project = "forgejo";
+
+      networks = {
+        backend = "lan";
+        frontend = "lan";
+      };
+
+      roles = {
+        app = "dev-vm";
+        mysql = "dev-vm";
+        router = "dev-vm";
+      };
+    };
   };
+
+  projectsDir = [
+    ./projects
+    (inputs.ozzie-lab + "/projects")
+  ];
 
   services = {
     syncthing = {

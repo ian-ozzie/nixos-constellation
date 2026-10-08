@@ -12,7 +12,7 @@ let
   hostName = "${project.subdomain}.${project.domain}";
   urlAddress = address: if lib.hasInfix ":" address then "[${address}]" else address;
 
-  upstreams = map (address: "${urlAddress address}:8945") (
+  upstreams = map (address: "${urlAddress address}:8080") (
     projectNetwork.addresses "backend" project.roles.php
   );
 in

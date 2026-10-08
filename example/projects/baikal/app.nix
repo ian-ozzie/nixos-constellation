@@ -27,7 +27,7 @@ in
       source."@address" = client;
 
       port = {
-        "@port" = "80";
+        "@port" = "8080";
         "@protocol" = "tcp";
       };
     }) clients;
@@ -36,7 +36,7 @@ in
       listen = [
         {
           addr = projectNetwork.address "backend" memberName;
-          port = 80;
+          port = 8080;
         }
       ];
 
