@@ -5,7 +5,6 @@
   ...
 }:
 {
-  lib,
   pkgs,
   ...
 }:
@@ -34,13 +33,6 @@ let
   '';
 in
 {
-  assertions = [
-    {
-      assertion = lib.isString project.roles.mysql;
-      message = "Project '${projectName}': role 'mysql' must name one member";
-    }
-  ];
-
   systemd.tmpfiles.rules = [
     "C /var/lib/baikal/config/baikal.yaml 0600 baikal baikal - ${baikalConfig}"
   ];

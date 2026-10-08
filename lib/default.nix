@@ -111,7 +111,11 @@ in
               projectName: project:
               lib.concatLists (
                 lib.mapAttrsToList (
-                  roleName: role: map (memberName: { inherit memberName projectName roleName; }) (lib.toList role)
+                  roleName: role:
+                  if roleName == "common" then
+                    throw "Project '${projectName}': 'common' is reserved and cannot be assigned as a role"
+                  else
+                    map (memberName: { inherit memberName projectName roleName; }) (lib.toList role)
                 ) (project.roles or { })
               )
             ) projects
@@ -139,9 +143,19 @@ in
 
       projectModules = lib.genAttrs memberNames (
         memberName:
-        lib.concatMap (assignment: projectRole assignment.projectName assignment.roleName) (
-          lib.filter (assignment: assignment.memberName == memberName) projectAssignments
-        )
+        let
+          assignments = lib.filter (assignment: assignment.memberName == memberName) projectAssignments;
+          assignedProjects = lib.unique (map (assignment: assignment.projectName) assignments);
+
+          commonModules = lib.concatMap (
+            projectName: lib.catAttrs "common" projectDefinitions.${projectName}
+          ) assignedProjects;
+
+          roleModules = lib.concatMap (
+            assignment: projectRole assignment.projectName assignment.roleName
+          ) assignments;
+        in
+        commonModules ++ roleModules
       );
 
       projectNetworks = lib.mapAttrs (
