@@ -20,6 +20,9 @@ let
     // {
       devices = lib.filter (device: deviceName device != memberName) folder.devices;
     }
+    // lib.optionalAttrs (folder ? path) {
+      path = lib.mkDefault folder.path;
+    }
   ) memberFolders;
 
   memberDevices = lib.mapAttrs (
