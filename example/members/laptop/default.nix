@@ -1,4 +1,5 @@
 {
+  home-manager,
   nixos-hardware,
   ...
 }:
@@ -14,8 +15,11 @@
   };
 
   modules = [
+    home-manager.nixosModules.home-manager
     nixos-hardware.nixosModules.framework-13-7040-amd
 
     ./configuration.nix
   ];
+
+  users = [ "ozzie" ];
 }

@@ -12,6 +12,11 @@
       url = "github:nix-community/disko";
     };
 
+    home-manager = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:nix-community/home-manager/release-26.05";
+    };
+
     nixos-hardware = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:nixos/nixos-hardware";
